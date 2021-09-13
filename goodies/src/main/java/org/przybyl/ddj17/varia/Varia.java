@@ -18,15 +18,22 @@ package org.przybyl.ddj17.varia;
 
 
 import java.io.*;
+import java.net.*;
+import java.util.*;
 
 // run as e.g.
 // java org/przybyl/ddj17/varia/Varia.java
 public class Varia {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         java.applet.Applet appletDeprecatedForRemoval;
         SecurityManager securityManager = System.getSecurityManager();
         var serialFilerFactory = ObjectInputFilter.Config.getSerialFilterFactory();
+        //jdk.jfr.events.DeserializationEvent event = null;
+        System.out.println(System.getProperty("native.encoding"));
+        System.out.println(HexFormat.isHexDigit('g'));
+        System.out.println(HexFormat.fromHexDigits("CAFEBABE"));
+        ServerSocket.setSocketFactory(() -> null);
     }
 
     public static strictfp double aDoubleOperation(double a, double b) {
