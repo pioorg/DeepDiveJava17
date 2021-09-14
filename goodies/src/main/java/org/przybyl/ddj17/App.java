@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2020 Piotr Przybył
+ *  Copyright (C) 2021 Piotr Przybył
  *
  *  This program is free software: you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
