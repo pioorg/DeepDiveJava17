@@ -31,16 +31,30 @@ import jdk.incubator.foreign.*;
  */
 public class ForeignMemoryAccessAPIDemo {
 
+    private static MemorySegment readerSegment;
+
     public static void main(String[] args) throws InterruptedException {
         sameThreadDemo();
+        twoThreadsDemo();
     }
 
     private static void sameThreadDemo() {
+        SequenceLayout intArrayLayout = MemoryLayout.sequenceLayout(10, MemoryLayout.valueLayout(32, ByteOrder.nativeOrder()));
+        MemorySegment segment = MemorySegment.allocateNative(intArrayLayout, ResourceScope.newImplicitScope());
+        populateNativeMem(intArrayLayout, segment);
+        examineNativeMem(intArrayLayout, segment);
+    }
+
+    private static void twoThreadsDemo() {
         SequenceLayout intArrayLayout = MemoryLayout.sequenceLayout(10, MemoryLayout.valueLayout(32, ByteOrder.nativeOrder()));
         try (ResourceScope scope = ResourceScope.newConfinedScope()) {
             MemorySegment segment = MemorySegment.allocateNative(intArrayLayout, scope);
             populateNativeMem(intArrayLayout, segment);
             examineNativeMem(intArrayLayout, segment);
+            var readerThread = new Thread(() -> examineNativeMem(intArrayLayout, segment), "readerThread");
+            readerThread.start();
+//            scope.close();
+//            examineNativeMem(intArrayLayout, segment);
         }
     }
 
@@ -57,7 +71,7 @@ public class ForeignMemoryAccessAPIDemo {
     private static void examineNativeMem(SequenceLayout intArrayLayout, MemorySegment segment) {
         MemoryAddress segmentBaseAddress = segment.address();
         System.out.println("Examining memory at: " + segmentBaseAddress.toRawLongValue());
-        System.out.println("Segment owned by: " + segment.scope().ownerThread().getName());
+        System.out.println("Segment owned by: " + segment.scope().ownerThread());
         VarHandle intElemHandle = intArrayLayout.varHandle(int.class, MemoryLayout.PathElement.sequenceElement());
         for (int i = 0; i < intArrayLayout.elementCount().getAsLong(); i++) {
             System.out.print(MemoryAccess.getIntAtOffset(segment, i * 4L));
